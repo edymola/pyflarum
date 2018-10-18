@@ -53,3 +53,4 @@ class PyFlarum:
             requests.post(url, json=data).json().values()
 
     def create_discussion(self,discussion):
+        discussion
