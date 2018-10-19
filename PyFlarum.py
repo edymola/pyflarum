@@ -82,7 +82,7 @@ class Discussion(PyFlarum):
         # print(response.text)
         self.discussion_id = response.json().get('data').get('id')
         self.first_post_id = response.json().get('data').get('relationships').get('startPost').get('data').get('id')
-        if response.status_code==201:
+        if response.status_code == 201:
             print("Created discussion")
         return response.status_code
 
@@ -104,8 +104,8 @@ class Discussion(PyFlarum):
                 }
             }
         }
-        response = super()._pyflarum_post(END_POINTS['Post'],data)
-        if response.status_code==201:
+        response = super()._pyflarum_post(END_POINTS['Post'], data)
+        if response.status_code == 201:
             print("Post discussion")
         return response.status_code
 
@@ -150,6 +150,6 @@ class Post(PyFlarum):
         endpoint = END_POINTS['Post'] + f"/{self.post_id}"
         response = super()._pyflarum_patch(endpoint, self.__gen_context())
         # print(response.text)
-        if response.status_code==201:
+        if response.status_code == 201:
             print("Post updated")
         return response.status_code
