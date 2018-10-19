@@ -10,7 +10,7 @@ END_POINTS = {
     "Tags": "/tags",
 }
 # Cuentas
-DEFAULT_TAG = 4
+DEFAULT_TAG = 28
 
 
 class PyFlarum:
@@ -47,15 +47,20 @@ class PyFlarum:
 
 class Discussion(PyFlarum):
     def __init__(self,
-                 base_url, tittle, description, username=None, password=None, token=None, tag_id=DEFAULT_TAG):
+                 base_url, tittle, description, username=None, password=None, token=None, tags_id=(DEFAULT_TAG,)):
         super().__init__(base_url, username, password, token)
         self.__tittle = tittle
         self.description = description
-        self.tag_id = tag_id
+        self.tags_id = tags_id
         self.discussion_id = None
         self.first_post_id = None
 
-    def __get_string(self):
+    def get_string(self):
+        arra_tags = []
+        for tag_id in self.tags_id:
+            arra_tags.append({
+                    "type": "tags",
+                    "id": tag_id})
         string = {
             "data": {
                 "type": "discussions",
@@ -65,12 +70,7 @@ class Discussion(PyFlarum):
                 },
                 "relationships": {
                     "tags": {
-                        "data": [
-                            {
-                                "type": "tags",
-                                "id": self.tag_id
-                            }
-                        ]
+                        "data": arra_tags
                     }
                 }
             }
@@ -78,7 +78,7 @@ class Discussion(PyFlarum):
         return string
 
     def create_discussion(self):
-        response = super()._pyflarum_post(END_POINTS['Discussions'], self.__get_string())
+        response = super()._pyflarum_post(END_POINTS['Discussions'], self.get_string())
         # print(response.text)
         self.discussion_id = response.json().get('data').get('id')
         self.first_post_id = response.json().get('data').get('relationships').get('startPost').get('data').get('id')
