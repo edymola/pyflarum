@@ -79,14 +79,16 @@ class Discussion(PyFlarum):
 
     def create_discussion(self):
         response = super()._pyflarum_post(END_POINTS['Discussions'], self.get_string())
-        # print(response.text)
-        self.discussion_id = response.json().get('data').get('id')
-        self.first_post_id = response.json().get('data').get('relationships').get('startPost').get('data').get('id')
         if response.status_code == 201:
+            # print(response.text)
+            self.discussion_id = response.json().get('data').get('id')
+            self.first_post_id = response.json().get('data').get('relationships').get('startPost').get('data').get('id')
             print("Created discussion")
-        return response.status_code
+            return response.status_code
+        else:
+            print(f"Error creating the discusion {response.text}")
+            return response.status_code
 
-    # TODO
     def post_discussion(self, context_to_post):
         data = {
             "data": {
@@ -118,11 +120,8 @@ class Discussion(PyFlarum):
         return post
 
     # TODO
-    def get_discussion(self):
-        return
-
-    # TODO
     def update_discussion(self):
+
         return
 
 
