@@ -11,6 +11,8 @@ END_POINTS = {
 }
 # Cuentas
 DEFAULT_TAG = 28
+# Cookie
+DEFAULT_COOKIE = {"Cookie": "tuputamadre"}
 
 
 class PyFlarum:
@@ -21,7 +23,8 @@ class PyFlarum:
             self.token = token
         else:
             self.__get_token(username, password)
-        self.headers = {"Authorization": f"Token {self.token}"}
+        self.headers = {"Authorization": f"Token {self.token},"
+                        }
 
     def __get_token(self, username, password):
         url = self.base_url + "/api/token"
@@ -34,15 +37,15 @@ class PyFlarum:
 
     def _pyflarum_post(self, endpoint, data):
         url = self.base_url + endpoint
-        return requests.post(url, headers=self.headers, json=data)
+        return requests.post(url, headers=self.headers, json=data, cookies=DEFAULT_COOKIE)
 
     def _pyflarum_get(self, endpoint):
         url = self.base_url + endpoint
-        return requests.get(url, headers=self.headers)
+        return requests.get(url, headers=self.headers, cookies=DEFAULT_COOKIE)
 
     def _pyflarum_patch(self, endpoint, data):
         url = self.base_url + endpoint
-        return requests.patch(url, headers=self.headers, json=data)
+        return requests.patch(url, headers=self.headers, json=data, cookies=DEFAULT_COOKIE)
 
 
 class Discussion(PyFlarum):
@@ -59,8 +62,8 @@ class Discussion(PyFlarum):
         arra_tags = []
         for tag_id in self.tags_id:
             arra_tags.append({
-                    "type": "tags",
-                    "id": tag_id})
+                "type": "tags",
+                "id": tag_id})
         string = {
             "data": {
                 "type": "discussions",
