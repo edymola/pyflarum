@@ -8,4 +8,5 @@ setup(name='pyflarum',
       author_email='edymola@gmail.com',
       license='GNU GPLv3',
       packages=['pyflarum'],
-      zip_safe=False)
+      zip_safe=False,
+      install_requires=['requests'])

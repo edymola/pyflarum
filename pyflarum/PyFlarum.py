@@ -11,17 +11,20 @@ END_POINTS = {
 }
 # Cuentas
 DEFAULT_TAG = 28
+# Cookie
+DEFAULT_COOKIE = {"Cookie": "DefaultCookie"}
 
 
 class PyFlarum:
 
-    def __init__(self, base_url, username=None, password=None, token=None):
+    def __init__(self, base_url, username=None, password=None, token=None, cookies=None):
         self.base_url = base_url
+        self.cookies = cookies
+        self.headers = {"Authorization": f"Token {self.token}"}
         if username is None or password is None:
             self.token = token
         else:
             self.__get_token(username, password)
-        self.headers = {"Authorization": f"Token {self.token}"}
 
     def __get_token(self, username, password):
         url = self.base_url + "/api/token"
@@ -30,25 +33,26 @@ class PyFlarum:
             "password": password
         }
         self.token, self.user_id = \
-            requests.post(url, json=data).json().values()
+            requests.post(url, json=data, cookies=self.cookies).json().values()
 
     def _pyflarum_post(self, endpoint, data):
         url = self.base_url + endpoint
-        return requests.post(url, headers=self.headers, json=data)
+        return requests.post(url, headers=self.headers, json=data, cookies=self.cookies)
 
     def _pyflarum_get(self, endpoint):
         url = self.base_url + endpoint
-        return requests.get(url, headers=self.headers)
+        return requests.get(url, headers=self.headers, cookies=self.cookies)
 
     def _pyflarum_patch(self, endpoint, data):
         url = self.base_url + endpoint
-        return requests.patch(url, headers=self.headers, json=data)
+        return requests.patch(url, headers=self.headers, json=data, cookies=self.cookies)
 
 
 class Discussion(PyFlarum):
     def __init__(self,
-                 base_url, tittle, description, username=None, password=None, token=None, tags_id=(DEFAULT_TAG,)):
-        super().__init__(base_url, username, password, token)
+                 base_url, tittle, description, username=None, password=None, token=None, tags_id=(DEFAULT_TAG,),
+                 cookies=None):
+        super().__init__(base_url, username, password, token, cookies)
         self.__tittle = tittle
         self.description = description
         self.tags_id = tags_id
@@ -59,8 +63,8 @@ class Discussion(PyFlarum):
         arra_tags = []
         for tag_id in self.tags_id:
             arra_tags.append({
-                    "type": "tags",
-                    "id": tag_id})
+                "type": "tags",
+                "id": tag_id})
         string = {
             "data": {
                 "type": "discussions",
@@ -130,8 +134,8 @@ class Discussion(PyFlarum):
 class Post(PyFlarum):
 
     def __init__(self,
-                 base_url, context, post_id, username=None, password=None, token=None, ):
-        super().__init__(base_url, username, password, token)
+                 base_url, context, post_id, username=None, password=None, token=None, cookies=None):
+        super().__init__(base_url, username, password, token, cookies)
         self.context = context
         self.post_id = post_id
 
