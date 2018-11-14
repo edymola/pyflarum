@@ -17,14 +17,12 @@ DEFAULT_COOKIE = {"Cookie": "DefaultCookie"}
 
 class PyFlarum:
 
-    def __init__(self, base_url, username=None, password=None, token=None, cookies=None):
+    def __init__(self, base_url, username=None, password=None, cookies=None):
         self.base_url = base_url
         self.cookies = cookies
+        self.__get_token(username, password)
+            # Tamien se puede usar bearer
         self.headers = {"Authorization": f"Token {self.token}"}
-        if username is None or password is None:
-            self.token = token
-        else:
-            self.__get_token(username, password)
 
     def __get_token(self, username, password):
         url = self.base_url + "/api/token"
@@ -47,12 +45,20 @@ class PyFlarum:
         url = self.base_url + endpoint
         return requests.patch(url, headers=self.headers, json=data, cookies=self.cookies)
 
+class User(PyFlarum):
+    def __init__(self,base_url, username=None, password=None, cookies=None):
+        super().__init__(base_url,username,password,cookies)
+    def get_stats(self):
+        return super()._pyflarum_get(END_POINTS["Users"],self.user_id)
+
+
+
 
 class Discussion(PyFlarum):
     def __init__(self,
-                 base_url, tittle, description, username=None, password=None, token=None, tags_id=(DEFAULT_TAG,),
+                 base_url, tittle, description, username=None, password=None, tags_id=(DEFAULT_TAG,),
                  cookies=None):
-        super().__init__(base_url, username, password, token, cookies)
+        super().__init__(base_url, username, password, cookies)
         self.__tittle = tittle
         self.description = description
         self.tags_id = tags_id
@@ -134,8 +140,8 @@ class Discussion(PyFlarum):
 class Post(PyFlarum):
 
     def __init__(self,
-                 base_url, context, post_id, username=None, password=None, token=None, cookies=None):
-        super().__init__(base_url, username, password, token, cookies)
+                 base_url, context, post_id, username=None, password=None, cookies=None):
+        super().__init__(base_url, username, password, cookies)
         self.context = context
         self.post_id = post_id
 
