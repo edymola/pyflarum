@@ -76,7 +76,7 @@ class User(PyFlarum):
         return self.stats
 
     def __update_stats(self):
-        response = super()._pyflarum_get(f'{END_POINTS["Users"]}/{self.user_id)}')
+        response = super()._pyflarum_get(f'{END_POINTS["Users"]}/{self.user_id}')
         if response.status_code == 200:
             self.stats = response.json()
             self.attributes = self.stats['data']['attributes']
