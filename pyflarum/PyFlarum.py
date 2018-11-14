@@ -21,7 +21,7 @@ class PyFlarum:
         self.base_url = base_url
         self.cookies = cookies
         self.__get_token(username, password)
-            # Tamien se puede usar bearer
+        # Tamien se puede usar bearer
         self.headers = {"Authorization": f"Token {self.token}"}
 
     def __get_token(self, username, password):
@@ -32,6 +32,8 @@ class PyFlarum:
         }
         self.token, self.user_id = \
             requests.post(url, json=data, cookies=self.cookies).json().values()
+    #TODO Estaria bien juntar todo esto en uno y que te devolviera directamente el json
+
 
     def _pyflarum_post(self, endpoint, data):
         url = self.base_url + endpoint
@@ -45,12 +47,23 @@ class PyFlarum:
         url = self.base_url + endpoint
         return requests.patch(url, headers=self.headers, json=data, cookies=self.cookies)
 
-class User(PyFlarum):
-    def __init__(self,base_url, username=None, password=None, cookies=None):
-        super().__init__(base_url,username,password,cookies)
-    def get_stats(self):
-        return super()._pyflarum_get(END_POINTS["Users"],self.user_id)
 
+class User(PyFlarum):
+    def __init__(self, base_url, username=None, password=None, cookies=None):
+        super().__init__(base_url, username, password, cookies)
+        self.__update_stats()
+
+    def get_stats(self,Update=True):
+        if Update:
+           self.__update_stats()
+
+        return self.stats
+    def __update_stats(self):
+        response = super()._pyflarum_get(f'{END_POINTS["Users"]}/{self.user_id)}')
+        if response.status_code == 200:
+            self.stats = response.json()
+            self.attributes = self.stats['data']['attributes']
+            self.discussionsCount = self.attributes['discussionsCount']
 
 
 
