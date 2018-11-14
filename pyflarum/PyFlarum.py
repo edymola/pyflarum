@@ -1,13 +1,14 @@
 import requests
 
 END_POINTS = {
-    "Forum": "/forum",
-    "Discussions": "/discussions",
-    "Post": "/posts",
-    "Users": "/users",
-    "Groups": "/groups",
-    "Notifications": "/notifications",
-    "Tags": "/tags",
+    "Login":"/api/token",
+    "Forum": "/api/forum",
+    "Discussions": "/api/discussions",
+    "Post": "/api/posts",
+    "Users": "/api/users",
+    "Groups": "/api/groups",
+    "Notifications": "/api/notifications",
+    "Tags": "/api/tags",
 }
 # Cuentas
 DEFAULT_TAG = 28
@@ -25,7 +26,7 @@ class PyFlarum:
         self.headers = {"Authorization": f"Token {self.token}"}
 
     def __get_token(self, username, password):
-        url = self.base_url + "/api/token"
+        url = self.base_url + END_POINTS["Login"]
         data = {
             "identification": username,
             "password": password
@@ -42,7 +43,7 @@ class PyFlarum:
     def _pyflarum_post(self, endpoint, data):
         url = self.base_url + endpoint
         response = requests.post(url, headers=self.headers, json=data, cookies=self.cookies)
-        if response not in (200, 201):
+        if response.status_code not in (200, 201):
             raise pyflarumBadRequest
         else:
             return response
@@ -50,7 +51,7 @@ class PyFlarum:
     def _pyflarum_get(self, endpoint):
         url = self.base_url + endpoint
         response = requests.get(url, headers=self.headers, cookies=self.cookies)
-        if response not in (200, 201):
+        if response.status_code not in (200, 201):
             raise pyflarumBadRequest
         else:
             return response
@@ -58,7 +59,7 @@ class PyFlarum:
     def _pyflarum_patch(self, endpoint, data):
         url = self.base_url + endpoint
         response = requests.patch(url, headers=self.headers, json=data, cookies=self.cookies)
-        if response not in (200, 201):
+        if response.status_code not in (200, 201):
             raise pyflarumBadRequest
         else:
             return response
