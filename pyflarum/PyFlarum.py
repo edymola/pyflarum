@@ -32,20 +32,32 @@ class PyFlarum:
         }
         self.token, self.user_id = \
             requests.post(url, json=data, cookies=self.cookies).json().values()
-    #TODO Estaria bien juntar todo esto en uno y que te devolviera directamente el json
 
+    # TODO Estaria bien juntar todo esto en uno y que te devolviera directamente el json
 
     def _pyflarum_post(self, endpoint, data):
         url = self.base_url + endpoint
-        return requests.post(url, headers=self.headers, json=data, cookies=self.cookies)
+        response = requests.post(url, headers=self.headers, json=data, cookies=self.cookies)
+        if response not in (200, 201):
+            raise pyflarumBadRequest
+        else:
+            return response
 
     def _pyflarum_get(self, endpoint):
         url = self.base_url + endpoint
-        return requests.get(url, headers=self.headers, cookies=self.cookies)
+        response = requests.get(url, headers=self.headers, cookies=self.cookies)
+        if response not in (200, 201):
+            raise pyflarumBadRequest
+        else:
+            return response
 
     def _pyflarum_patch(self, endpoint, data):
         url = self.base_url + endpoint
-        return requests.patch(url, headers=self.headers, json=data, cookies=self.cookies)
+        response = requests.patch(url, headers=self.headers, json=data, cookies=self.cookies)
+        if response not in (200, 201):
+            raise pyflarumBadRequest
+        else:
+            return response
 
 
 class User(PyFlarum):
@@ -53,18 +65,18 @@ class User(PyFlarum):
         super().__init__(base_url, username, password, cookies)
         self.__update_stats()
 
-    def get_stats(self,Update=True):
+    def get_stats(self, Update=True):
         if Update:
-           self.__update_stats()
+            self.__update_stats()
 
         return self.stats
+
     def __update_stats(self):
         response = super()._pyflarum_get(f'{END_POINTS["Users"]}/{self.user_id)}')
         if response.status_code == 200:
             self.stats = response.json()
             self.attributes = self.stats['data']['attributes']
             self.discussionsCount = self.attributes['discussionsCount']
-
 
 
 class Discussion(PyFlarum):
@@ -101,16 +113,15 @@ class Discussion(PyFlarum):
         return string
 
     def create_discussion(self):
-        response = super()._pyflarum_post(END_POINTS['Discussions'], self.get_string())
-        if response.status_code == 201:
-            # print(response.text)
+        try:
+            response = super()._pyflarum_post(END_POINTS['Discussions'], self.get_string())
             self.discussion_id = response.json().get('data').get('id')
             self.first_post_id = response.json().get('data').get('relationships').get('startPost').get('data').get('id')
             print("Created discussion")
-            return response.status_code
-        else:
+            return True
+        except pyflarumBadRequest:
             print(f"Error creating the discusion {response.text}")
-            return response.status_code
+            return False
 
     def post_discussion(self, context_to_post):
         data = {
@@ -129,10 +140,12 @@ class Discussion(PyFlarum):
                 }
             }
         }
-        response = super()._pyflarum_post(END_POINTS['Post'], data)
-        if response.status_code == 201:
+        try:
+            super()._pyflarum_post(END_POINTS['Post'], data)
             print("Post discussion")
-        return response.status_code
+            return True
+        except pyflarumBadRequest:
+            print("Couldn't post")
 
     # Fixme Ponerlo mas bonito
     def get_first_post(self):
@@ -170,8 +183,18 @@ class Post(PyFlarum):
 
     def update_post(self):
         endpoint = END_POINTS['Post'] + f"/{self.post_id}"
-        response = super()._pyflarum_patch(endpoint, self.__gen_context())
-        # print(response.text)
-        if response.status_code == 201:
+        try:
+            super()._pyflarum_patch(endpoint, self.__gen_context())
             print("Post updated")
-        return response.status_code
+            return True
+        except pyflarumBadRequest:
+            print("Couldn't update")
+            return False
+
+
+class pyflarumBadRequest(Exception):
+    """Salta cuando  hay una bad requests"""
+    pass
+class pyflarum_Bad_Credentials(Exception):
+    """Salta """
+    pass
