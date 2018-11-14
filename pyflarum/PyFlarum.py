@@ -1,13 +1,14 @@
 import requests
 
 END_POINTS = {
-    "Forum": "/forum",
-    "Discussions": "/discussions",
-    "Post": "/posts",
-    "Users": "/users",
-    "Groups": "/groups",
-    "Notifications": "/notifications",
-    "Tags": "/tags",
+    "Login":"/api/token",
+    "Forum": "/api/forum",
+    "Discussions": "/api/discussions",
+    "Post": "/api/posts",
+    "Users": "/api/users",
+    "Groups": "/api/groups",
+    "Notifications": "/api/notifications",
+    "Tags": "/api/tags",
 }
 # Cuentas
 DEFAULT_TAG = 28
@@ -25,7 +26,7 @@ class PyFlarum:
         self.headers = {"Authorization": f"Token {self.token}"}
 
     def __get_token(self, username, password):
-        url = self.base_url + "/api/token"
+        url = self.base_url + END_POINTS["Login"]
         data = {
             "identification": username,
             "password": password
