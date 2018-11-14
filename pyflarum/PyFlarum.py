@@ -30,8 +30,12 @@ class PyFlarum:
             "identification": username,
             "password": password
         }
-        self.token, self.user_id = \
-            requests.post(url, json=data, cookies=self.cookies).json().values()
+        response = requests.post(url, json=data, cookies=self.cookies)
+        if response.status_code not in (200,201):
+            raise pyflarum_Bad_Credentials
+        else:
+            self.token, self.user_id = response.json().values()
+
 
     # TODO Estaria bien juntar todo esto en uno y que te devolviera directamente el json
 
