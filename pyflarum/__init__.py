@@ -1,1 +1,1 @@
-from .PyFlarum import PyFlarum,Post,Discussion
+from .PyFlarum import *
